@@ -27,11 +27,13 @@
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
             <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+			<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
         </config-file>
 
         <source-file src="src/android/ValleyNetworkManager.java" target-dir="src/com/chinavvv/plugin"/>
         <source-file src="src/android/NetworkUtils.java" target-dir="src/com/chinavvv/plugin"/>
         <source-file src="src/android/PollingUtils.java" target-dir="src/com/chinavvv/plugin"/>
         <source-file src="src/android/RemoveWifiService.java" target-dir="src/com/chinavvv/plugin"/>
+		<source-file src="src/android/SystemUtil.java" target-dir="src/com/chinavvv/plugin"/>
     </platform>
 </plugin>
