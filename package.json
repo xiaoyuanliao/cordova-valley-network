@@ -1,0 +1,23 @@
+{
+  "name": "cordova-valley-network",
+  "version": "0.0.1",
+  "description": "网络管理插件",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaoyuanliao/cordova-valley-network.git"
+  },
+  "keywords": [
+    "cordova",
+    "photoview"
+  ],
+  "author": "liaoxiaoyuan",
+  "license": "ISC",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "https://github.com/xiaoyuanliao/cordova-valley-network.git#readme"
+}

@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-valley-network" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>ValleyNetworkManager</name>
+
+    <description>网络管理插件</description>
+
+    <engines>
+        <engine name="cordova" version=">=3.6.0" />
+    </engines>
+    
+    <js-module name="ValleyNetworkManager" src="www/ValleyNetworkManager.js">
+        <clobbers target="ValleyNetworkManager" />
+    </js-module>
+
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="ValleyNetworkManager">
+                <param name="android-package" value="com.chinavvv.plugin.ValleyNetworkManager" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:enabled="true" android:exported="false" android:name="com.chinavvv.plugin.RemoveWifiService">
+            </service>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+            <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+        </config-file>
+
+        <source-file src="src/android/ValleyNetworkManager.java" target-dir="src/com/chinavvv/plugin"/>
+        <source-file src="src/android/NetworkUtils.java" target-dir="src/com/chinavvv/plugin"/>
+        <source-file src="src/android/PollingUtils.java" target-dir="src/com/chinavvv/plugin"/>
+        <source-file src="src/android/RemoveWifiService.java" target-dir="src/com/chinavvv/plugin"/>
+    </platform>
+</plugin>
