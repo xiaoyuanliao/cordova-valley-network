@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
@@ -11,6 +12,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.List;
 
 public class NetworkUtils {
@@ -32,22 +36,22 @@ public class NetworkUtils {
     wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
   }
 
-  public JSONObject getCurrentApn() throws JSONException {
+  public NetworkInfo getCurrentNet() throws JSONException {
     NetworkInfo ni = cm.getActiveNetworkInfo();
-    if (ni != null) {
-      return processApn(ni);
-    } else {
+    int i = 0;
+    while(ni==null && i<20){
+      i++;
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
       ni = cm.getActiveNetworkInfo();
-      return processApn(ni);
     }
+    return ni;
   }
 
-  private JSONObject processApn(NetworkInfo ni) throws JSONException {
+  private JSONObject processNet(NetworkInfo ni) throws JSONException {
     JSONObject result = new JSONObject();
     if (ni != null) {
       result.put("apn", ni.getExtraInfo());
@@ -58,7 +62,7 @@ public class NetworkUtils {
     return result;
   }
 
-  public boolean connectWifi(WifiConfiguration wifiConfiguration) {
+  public JSONObject connectWifi(WifiConfiguration wifiConfiguration) {
     openWifi();
 
     try {
@@ -80,7 +84,26 @@ public class NetworkUtils {
     Log.d(context.getPackageName(), "enable: " + enable);
     boolean reconnect = wifiManager.reconnect();
     Log.d(context.getPackageName(), "reconnect: " + reconnect);
-    return reconnect;
+    JSONObject result = null;
+    try {
+      int i = 0;
+      NetworkInfo networkInfo =  getCurrentNet();
+      while(!networkInfo.getTypeName().equals("WIFI") && i<20){
+        i++;
+        networkInfo = getCurrentNet();
+      }
+      i = 0;
+      while(!networkInfo.getState().equals(NetworkInfo.State.CONNECTED) && i<20){
+        i++;
+        Thread.sleep(1000);
+      }
+      result = getWifiInfo();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    return result;
   }
 
   /**
@@ -162,6 +185,21 @@ public class NetworkUtils {
 
   }
 
+  public JSONObject getWifiInfo() {
+    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+    JSONObject result = new JSONObject();
+    if (wifiInfo != null) {
+      try {
+        result.put("mac", getLocalMacAddress());
+        result.put("name", SystemUtil.getSystemModel());
+        System.out.println(SystemUtil.getDeviceBrand());
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return result;
+  }
+
   private WifiConfiguration isExist(String ssid) {
     List<WifiConfiguration> configs = wifiManager.getConfiguredNetworks();
 
@@ -173,6 +211,34 @@ public class NetworkUtils {
       }
     }
     return null;
+  }
+
+  public static String getLocalMacAddress() {
+    String macSerial = null;
+    String str = "";
+    try {
+      Process pp = null;
+      try {
+        pp = Runtime.getRuntime().exec("cat /sys/class/net/wlan0/address ");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      InputStreamReader ir = new InputStreamReader(pp.getInputStream());
+      LineNumberReader input = new LineNumberReader(ir);
+
+
+      for (; null != str; ) {
+        str = input.readLine();
+        if (str != null) {
+          macSerial = str.trim();// 去空格
+          break;
+        }
+      }
+    } catch (IOException ex) {
+      // 赋予默认值
+      ex.printStackTrace();
+    }
+    return macSerial;
   }
 
 }
